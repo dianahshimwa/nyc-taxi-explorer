@@ -2,9 +2,10 @@
 Full-stack web application that analyzes the NYC taxi trip patterns.
 
 ## Team Members
-- Dianah Shimwa Gasasira - Backend, Database, Algorithm
+- Dianah Shimwa Gasasira - Backend, Algorithm
 - Ayobamidele Aiyedogbon - Frontend, Visualizations
 - Jesse Nkubito - Data Processing, Documentation
+- Bior Aguer Kuir - Database
 
 ## Video Demo
 
