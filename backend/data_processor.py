@@ -15,19 +15,23 @@ class DataProcessor:
     # STEP 1: LOAD ALL THREE DATA FILES
     # -------------------------------------------------------
     def load_data(self):
-        print("Loading parquet trip data...")
-        self.trips = pd.read_parquet('../data/yellow_tripdata_2024-01.parquet')
+        print("Loading csv trip data...")
+        self.trips = pd.read_csv('../data/yellow_tripdata_2019-01.csv')
         
         print("Loading zone lookup CSV...")
         self.zones = pd.read_csv('../data/taxi_zone_lookup.csv')
         
         print("Loading GeoJSON spatial data...")
-        with open('../data/taxi_zones.geojson', 'r') as f:
-            self.geojson = json.load(f)
+        try:
+            with open('../data/taxi_zones.geojson', 'r') as f:
+                self.geojson = json.load(f)
+            print(f"GeoJSON features: {len(self.geojson['features'])}")
+        except FileNotFoundError:
+            print("GeoJSON file not found (optional)")
+            self.geojson = None
         
         print(f"Trips loaded: {len(self.trips)}")
         print(f"Zones loaded: {len(self.zones)}")
-        print(f"GeoJSON features: {len(self.geojson['features'])}")
     
     # -------------------------------------------------------
     # STEP 2: JOIN TRIPS WITH ZONE DATA
