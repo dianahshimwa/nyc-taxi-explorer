@@ -1,4 +1,12 @@
+<<<<<<< Updated upstream
 ```
 pandas
 pyarrow
+=======
+```
+flask
+flask-cors
+pandas
+pyarrow
+>>>>>>> Stashed changes
 sqlite3

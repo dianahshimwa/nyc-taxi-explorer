@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Taxi Explorer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>NYC Taxi Explorer</h1>
+        <p>Exploring urban mobility patterns — January 2024</p>
+    </header>
+
+    <main>
+
+
+        <section class="stat-cards">
+            <div class="card">
+                <p class="card-label">Total Trips</p>
+                <p class="card-value" id="total-trips">...</p>
+            </div>
+            <div class="card">
+                <p class="card-label">Average Fare</p>
+                <p class="card-value" id="avg-fare">...</p>
+            </div>
+            <div class="card">
+                <p class="card-label">Total Revenue</p>
+                <p class="card-value" id="total-revenue">...</p>
+            </div>
+            <div class="card">
+                <p class="card-label">Rush Hour Trips</p>
+                <p class="card-value" id="rush-hour">...</p>
+            </div>
+            <div class="card">
+                <p class="card-label">Avg Distance</p>
+                <p class="card-value" id="avg-distance">...</p>
+            </div>
+        </section>
+
+
+        <section class="charts-row">
+            <div class="chart-box">
+                <h2>Trips by Hour of Day</h2>
+                <canvas id="hourly-chart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h2>Top 10 Zones by Revenue</h2>
+                <canvas id="zones-chart"></canvas>
+            </div>
+        </section>
+
+
+        <section class="charts-row">
+            <div class="chart-box">
+                <h2>Trip Distance Breakdown</h2>
+                <canvas id="distance-chart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h2>Trips by Borough</h2>
+                <canvas id="borough-chart"></canvas>
+            </div>
+        </section>
+
+
+        <section class="table-section">
+            <h2>Trip Explorer</h2>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="borough-filter">Borough</label>
+                    <select id="borough-filter">
+                        <option value="">All Boroughs</option>
+                        <option value="Manhattan">Manhattan</option>
+                        <option value="Queens">Queens</option>
+                        <option value="Brooklyn">Brooklyn</option>
+                        <option value="Bronx">Bronx</option>
+                        <option value="Staten Island">Staten Island</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="min-fare">Min Fare ($)</label>
+                    <input type="number" id="min-fare" value="0" min="0">
+                </div>
+
+                <div class="filter-group">
+                    <label for="max-fare">Max Fare ($)</label>
+                    <input type="number" id="max-fare" value="200" min="0">
+                </div>
+
+                <div class="filter-group">
+                    <label for="rush-filter">Time</label>
+                    <select id="rush-filter">
+                        <option value="">All Times</option>
+                        <option value="1">Rush Hour Only</option>
+                        <option value="0">Off Peak Only</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="sort-by">Sort By</label>
+                    <select id="sort-by">
+                        <option value="pickup_datetime">Date</option>
+                        <option value="total_amount">Fare</option>
+                        <option value="trip_distance">Distance</option>
+                        <option value="speed_mph">Speed</option>
+                        <option value="duration_minutes">Duration</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="limit-select">Show</label>
+                    <select id="limit-select">
+                        <option value="50">50</option>
+                        <option value="100" selected>100</option>
+                        <option value="200">200</option>
+                    </select>
+                </div>
+
+                <button id="apply-filters">Apply Filters</button>
+                <button id="reset-filters">Reset</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pickup Time</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Distance</th>
+                            <th>Duration</th>
+                            <th>Speed</th>
+                            <th>Fare</th>
+                            <th>Payment</th>
+                            <th>Rush Hour</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trips-body">
+                        <tr>
+                            <td colspan="9">Loading trips...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Data: NYC Taxi & Limousine Commission | January 2024</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
