@@ -4,7 +4,7 @@ import sqlite3
 from custom_algorithm import TaxiZoneRanker
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend to call this API
+CORS(app, origins="*", supports_credentials=False)  # Allow frontend to call this API
 
 DATABASE = 'taxi_data.db'
 
@@ -98,22 +98,23 @@ def get_top_zones():
     trips = [dict(row) for row in cursor.fetchall()]
     
     # Use our custom quicksort algorithm to rank zones
-    ranked_zones = rank_zones_by_revenue(trips, limit)
+    ranker = TaxiZoneRanker()
+    ranked_zones = ranker.rank_zones_by_revenue(trips)[:limit]
     
     # Add zone names by looking up each zone
     results = []
-    for item in ranked_zones:
+    for zone_id, revenue in ranked_zones[:limit]:
         cursor.execute(
             'SELECT Borough, Zone FROM zones WHERE LocationID = ?',
-            (item['zone_id'],)
+            (zone_id,)
         )
         zone = cursor.fetchone()
         
         results.append({
-            'zone_id': item['zone_id'],
+            'zone_id': zone_id,
             'borough': zone['Borough'] if zone else 'Unknown',
             'zone': zone['Zone'] if zone else 'Unknown',
-            'revenue': item['revenue']
+            'revenue': round(revenue, 2)
         })
     
     conn.close()
