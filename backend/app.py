@@ -6,7 +6,7 @@ from custom_algorithm import TaxiZoneRanker
 app = Flask(__name__)
 CORS(app, origins="*", supports_credentials=False)  # Allow frontend to call this API
 
-DATABASE = 'taxi_data.db'
+DATABASE = 'nyc_taxi.db'
 
 def get_db():
     """Create a database connection"""
