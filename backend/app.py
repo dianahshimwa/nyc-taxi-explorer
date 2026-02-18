@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sqlite3
-from custom_algorithm import rank_zones_by_revenue
+from custom_algorithm import TaxiZoneRanker
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend to call this API
