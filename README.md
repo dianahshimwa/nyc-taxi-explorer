@@ -86,10 +86,7 @@ If you'd like to add features or fixes:
 1. Create an issue describing the change.
 2. Open a branch, make your changes, and submit a pull request.
 
-License
-
-This repository does not include a license file; add one if you plan to share or publish the code.
 
 Contact
 
-For questions about the code or dataset, contact the project owners listed in the original project header.
+For questions about the code or dataset, contact the members of the group.
