@@ -1,5 +1,7 @@
 import sqlite3
+import csv
 
+DB_PATH = 'nyc_taxi.db'
 SCHEMA = """
 -- ================================================
 -- NYC TAXI EXPLORER - DATABASE SCHEMA
@@ -100,11 +102,75 @@ CREATE INDEX idx_total_amount
     ON trips (total_amount);
 """
 
-def init_database(db_path='nyc_taxi.db'):
-    conn = sqlite3.connect(db_path)
+def init_database():
+    print("Creating tables...")
+    conn = sqlite3.connect(DB_PATH)
     conn.executescript(SCHEMA)
     conn.commit()
     conn.close()
+    print("Tables created.")
+
+def load_zones():
+    print("Loading zones...")
+    conn = sqlite3.connect(DB_PATH)
+    with open('../data/taxi_zone_lookup.csv') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            conn.execute('INSERT OR IGNORE INTO zones VALUES (?,?,?,?)', 
+                         (row['LocationID'], row['Borough'], row['Zone'], row.get('service_zone', '')))
+    conn.commit()
+    conn.close()
+    print("Zones loaded.")
+
+def load_trips():
+    print("Loading trips (this will take a few minutes)...")
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+
+    batch = []
+    count = 0
+
+    with open('processed_trips.csv') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            batch.append((
+                row['pickup_datetime'], row['dropoff_datetime'], row['passenger_count'],
+                row['trip_distance'], row['PULocationID'], row['DOLocationID'],
+                row['payment_type'], row['payment_label'], row['fare_amount'],
+                row['tip_amount'], row['total_amount'], row['duration_minutes'],
+                row['speed_mph'], row['revenue_per_mile'], row['is_rush_hour'],
+                row['pickup_hour'], row['pickup_day_num'], row['pickup_borough'],
+                row['pickup_zone'], row['dropoff_borough'], row['dropoff_zone']
+            ))
+            if len(batch) == 10000:
+                conn.executemany('''INSERT INTO trips
+                    (pickup_datetime, dropoff_datetime, passenger_count, trip_distance,
+                     PULocationID, DOLocationID, payment_type, payment_label, fare_amount,
+                     tip_amount, total_amount, duration_minutes, speed_mph, revenue_per_mile,
+                     is_rush_hour, pickup_hour, pickup_day_num, pickup_borough, pickup_zone,
+                     dropoff_borough, dropoff_zone)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', batch)
+                conn.commit()
+                count += len(batch)
+                batch = []
+                print(f"  {count:,} rows inserted...")
+
+    if batch:
+        conn.executemany('''INSERT INTO trips
+            (pickup_datetime, dropoff_datetime, passenger_count, trip_distance,
+             PULocationID, DOLocationID, payment_type, payment_label, fare_amount,
+             tip_amount, total_amount, duration_minutes, speed_mph, revenue_per_mile,
+             is_rush_hour, pickup_hour, pickup_day_num, pickup_borough, pickup_zone,
+             dropoff_borough, dropoff_zone)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', batch)
+        conn.commit()
+        count += len(batch)
+
+    conn.close()
+    print(f"Done! {count:,} trips loaded.")
 
 if __name__ == '__main__':
     init_database()
+    load_zones()
+    load_trips()

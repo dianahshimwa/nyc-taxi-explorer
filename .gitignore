@@ -1,12 +1,5 @@
-<<<<<<< Updated upstream
-node_modules/
 data/
 venv/
-
-=======
-node_modules/
-data/yellow_tripdataa_2019-01.csv
-data/
-venv/
-
->>>>>>> Stashed changes
+backend/cleaning_log.txt
+backend/nyc_taxi.db
+backend/processed_trips.csv
