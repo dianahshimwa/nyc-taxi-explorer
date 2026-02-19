@@ -2,8 +2,10 @@ import sqlite3
 import csv
 
 DB_PATH = 'nyc_taxi.db'
-SCHEMA = """
--- Drop existing tables if starting fresh
+
+# Database design and triple quotations to make it neat
+
+SCHEMA = """   
 DROP TABLE IF EXISTS trips;
 DROP TABLE IF EXISTS zones;
 
