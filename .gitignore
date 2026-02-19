@@ -2,4 +2,6 @@ data/
 venv/
 backend/cleaning_log.txt
 backend/nyc_taxi.db
+backend/taxi_data.db
 backend/processed_trips.csv
+__pycache__/
