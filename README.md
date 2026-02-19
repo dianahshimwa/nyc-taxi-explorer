@@ -7,7 +7,10 @@ Full-stack web application that analyzes the NYC taxi trip patterns.
 - Jesse Nkubito - Data Processing, Documentation
 - Bior Aguer Kuir - Database, Documentation
 
-## Video Demo
+## Video Demo & team task sheet
+
+1. https://docs.google.com/spreadsheets/d/1WQV7vqSB8P43lSL9Z7yuMnFIPaApOHZrcsmOsyzrytY/edit?usp=sharing
+2. 
 
 ## Project Structure
 ```
