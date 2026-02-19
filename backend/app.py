@@ -4,6 +4,13 @@ import sqlite3
 from custom_algorithm import TaxiZoneRanker
 
 app = Flask(__name__)
+_cache = {}
+
+def cached_query(key, query_func):
+    if key not in _cache:
+        _cache[key] = query_func()
+    return _cache[key]
+
 CORS(app, origins="*", supports_credentials=False)  # Allow frontend to call this API
 
 DATABASE = 'nyc_taxi.db'
