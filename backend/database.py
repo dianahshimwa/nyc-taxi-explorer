@@ -3,19 +3,10 @@ import csv
 
 DB_PATH = 'nyc_taxi.db'
 SCHEMA = """
--- ================================================
--- NYC TAXI EXPLORER - DATABASE SCHEMA
--- ================================================
-
 -- Drop existing tables if starting fresh
 DROP TABLE IF EXISTS trips;
 DROP TABLE IF EXISTS zones;
 
--- ================================================
--- TABLE 1: zones
--- Stores all 265 NYC taxi zone reference data
--- This is our dimension table - it barely changes
--- ================================================
 CREATE TABLE zones (
     LocationID   INTEGER  NOT NULL,
     Borough      TEXT     NOT NULL,
@@ -25,11 +16,6 @@ CREATE TABLE zones (
     CONSTRAINT pk_zones PRIMARY KEY (LocationID)
 );
 
--- ================================================
--- TABLE 2: trips
--- Stores every cleaned taxi trip record
--- This is our fact table - it grows constantly
--- ================================================
 CREATE TABLE trips (
     trip_id          INTEGER  NOT NULL,
     pickup_datetime  TEXT     NOT NULL,
@@ -77,11 +63,6 @@ CREATE TABLE trips (
     CONSTRAINT chk_rush_hour
         CHECK (is_rush_hour IN (0, 1))
 );
-
--- ================================================
--- INDEXES
--- These make queries faster on large datasets
--- ================================================
 
 CREATE INDEX idx_pickup_zone
     ON trips (PULocationID);

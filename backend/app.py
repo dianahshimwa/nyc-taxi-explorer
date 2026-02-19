@@ -11,41 +11,40 @@ DATABASE = 'nyc_taxi.db'
 def get_db():
     """Create a database connection"""
     conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+    conn.row_factory = sqlite3.Row
     return conn
 
-# -------------------------------------------------------
-# ROUTE 1: Check if API is running
-# -------------------------------------------------------
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({'message': 'NYC Taxi API is running'})
 
-# -------------------------------------------------------
-# ROUTE 2: Overall stats for the dashboard header cards
-# -------------------------------------------------------
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
     conn = get_db()
     cursor = conn.cursor()
     
-    # Total trips
+# Total trips
+
     cursor.execute('SELECT COUNT(*) as count FROM trips')
     total_trips = cursor.fetchone()['count']
     
-    # Average fare
+# Average fare
+
     cursor.execute('SELECT ROUND(AVG(total_amount), 2) as avg FROM trips')
     avg_fare = cursor.fetchone()['avg']
     
-    # Total revenue
+# Total revenue
+
     cursor.execute('SELECT ROUND(SUM(total_amount), 2) as total FROM trips')
     total_revenue = cursor.fetchone()['total']
     
-    # Rush hour percentage
+# Rush hour percentage
+
     cursor.execute('SELECT ROUND(AVG(is_rush_hour) * 100, 1) as pct FROM trips')
     rush_hour_pct = cursor.fetchone()['pct']
     
-    # Average distance
+# Average distance
+
     cursor.execute('SELECT ROUND(AVG(trip_distance), 2) as avg FROM trips')
     avg_distance = cursor.fetchone()['avg']
     
@@ -59,9 +58,8 @@ def get_stats():
         'average_distance': avg_distance
     })
 
-# -------------------------------------------------------
-# ROUTE 3: Trips by hour of day (for line chart)
-# -------------------------------------------------------
+# Hourly trips
+
 @app.route('/api/hourly', methods=['GET'])
 def get_hourly():
     conn = get_db()
@@ -83,25 +81,25 @@ def get_hourly():
     
     return jsonify(rows)
 
-# -------------------------------------------------------
-# ROUTE 4: Top zones by revenue (uses custom algorithm)
-# -------------------------------------------------------
+# Use custom algorithms
+
 @app.route('/api/top-zones', methods=['GET'])
 def get_top_zones():
     limit = request.args.get('limit', 10, type=int)
     
     conn = get_db()
     cursor = conn.cursor()
-    
-    # Get all trips for the algorithm
+
     cursor.execute('SELECT PULocationID, total_amount FROM trips')
     trips = [dict(row) for row in cursor.fetchall()]
     
-    # Use our custom quicksort algorithm to rank zones
+# Use our custom quicksort algorithm to rank zones
+
     ranker = TaxiZoneRanker()
     ranked_zones = ranker.rank_zones_by_revenue(trips)[:limit]
     
-    # Add zone names by looking up each zone
+# Add zone names by looking up each zone
+
     results = []
     for zone_id, revenue in ranked_zones[:limit]:
         cursor.execute(
@@ -120,9 +118,8 @@ def get_top_zones():
     conn.close()
     return jsonify(results)
 
-# -------------------------------------------------------
-# ROUTE 5: Distance distribution (for doughnut chart)
-# -------------------------------------------------------
+# Donut chart
+
 @app.route('/api/distance-distribution', methods=['GET'])
 def get_distance_distribution():
     conn = get_db()
@@ -148,9 +145,8 @@ def get_distance_distribution():
     
     return jsonify(rows)
 
-# -------------------------------------------------------
-# ROUTE 6: Borough breakdown (for bar chart)
-# -------------------------------------------------------
+# Bar chart
+
 @app.route('/api/boroughs', methods=['GET'])
 def get_boroughs():
     conn = get_db()
@@ -173,9 +169,6 @@ def get_boroughs():
     
     return jsonify(rows)
 
-# -------------------------------------------------------
-# ROUTE 7: Trips table with filters
-# -------------------------------------------------------
 @app.route('/api/trips', methods=['GET'])
 def get_trips():
     limit = request.args.get('limit', 100, type=int)
@@ -186,7 +179,8 @@ def get_trips():
     sort_by = request.args.get('sort_by', 'pickup_datetime')
     order = request.args.get('order', 'DESC')
     
-    # Whitelist sort columns to prevent SQL injection
+# Prevent sql injections
+
     allowed_sorts = [
         'pickup_datetime',
         'total_amount',
@@ -197,7 +191,8 @@ def get_trips():
     safe_sort = sort_by if sort_by in allowed_sorts else 'pickup_datetime'
     safe_order = 'ASC' if order == 'ASC' else 'DESC'
     
-    # Build query based on filters
+# Build query based on filters
+
     query = '''
         SELECT
             trip_id,
@@ -237,9 +232,6 @@ def get_trips():
     
     return jsonify(rows)
 
-# -------------------------------------------------------
-# ROUTE 8: Payment type breakdown
-# -------------------------------------------------------
 @app.route('/api/payment-types', methods=['GET'])
 def get_payment_types():
     conn = get_db()
@@ -262,6 +254,7 @@ def get_payment_types():
     return jsonify(rows)
 
 # Start server
+
 if __name__ == '__main__':
     print('Starting Flask server...')
     print('API running at http://localhost:5000')
