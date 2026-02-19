@@ -27,66 +27,70 @@ def home():
 
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
-    conn = get_db()
-    cursor = conn.cursor()
-    
-# Total trips
+    def run():
+        conn = get_db()
+        cursor = conn.cursor()
+        
+    # Total trips
 
-    cursor.execute('SELECT COUNT(*) as count FROM trips')
-    total_trips = cursor.fetchone()['count']
-    
-# Average fare
+        cursor.execute('SELECT COUNT(*) as count FROM trips')
+        total_trips = cursor.fetchone()['count']
+        
+    # Average fare
 
-    cursor.execute('SELECT ROUND(AVG(total_amount), 2) as avg FROM trips')
-    avg_fare = cursor.fetchone()['avg']
-    
-# Total revenue
+        cursor.execute('SELECT ROUND(AVG(total_amount), 2) as avg FROM trips')
+        avg_fare = cursor.fetchone()['avg']
+        
+    # Total revenue
 
-    cursor.execute('SELECT ROUND(SUM(total_amount), 2) as total FROM trips')
-    total_revenue = cursor.fetchone()['total']
-    
-# Rush hour percentage
+        cursor.execute('SELECT ROUND(SUM(total_amount), 2) as total FROM trips')
+        total_revenue = cursor.fetchone()['total']
+        
+    # Rush hour percentage
 
-    cursor.execute('SELECT ROUND(AVG(is_rush_hour) * 100, 1) as pct FROM trips')
-    rush_hour_pct = cursor.fetchone()['pct']
-    
-# Average distance
+        cursor.execute('SELECT ROUND(AVG(is_rush_hour) * 100, 1) as pct FROM trips')
+        rush_hour_pct = cursor.fetchone()['pct']
+        
+    # Average distance
 
-    cursor.execute('SELECT ROUND(AVG(trip_distance), 2) as avg FROM trips')
-    avg_distance = cursor.fetchone()['avg']
-    
-    conn.close()
-    
-    return jsonify({
-        'total_trips': total_trips,
-        'average_fare': avg_fare,
-        'total_revenue': total_revenue,
-        'rush_hour_pct': rush_hour_pct,
-        'average_distance': avg_distance
-    })
+        cursor.execute('SELECT ROUND(AVG(trip_distance), 2) as avg FROM trips')
+        avg_distance = cursor.fetchone()['avg']
+        
+        conn.close()
+        
+        return{
+            'total_trips': total_trips,
+            'average_fare': avg_fare,
+            'total_revenue': total_revenue,
+            'rush_hour_pct': rush_hour_pct,
+            'average_distance': avg_distance
+        }
+    return jsonify(cached_query('stats', run))
 
 # Hourly trips
 
 @app.route('/api/hourly', methods=['GET'])
 def get_hourly():
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT
-            pickup_hour as hour,
-            COUNT(*) as trip_count,
-            ROUND(AVG(total_amount), 2) as avg_fare,
-            ROUND(AVG(speed_mph), 2) as avg_speed
-        FROM trips
-        GROUP BY pickup_hour
-        ORDER BY pickup_hour
-    ''')
-    
-    rows = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    
-    return jsonify(rows)
+    def run():
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT
+                pickup_hour as hour,
+                COUNT(*) as trip_count,
+                ROUND(AVG(total_amount), 2) as avg_fare,
+                ROUND(AVG(speed_mph), 2) as avg_speed
+            FROM trips
+            GROUP BY pickup_hour
+            ORDER BY pickup_hour
+        ''')
+        
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        
+        return rows
+    return jsonify(cached_query('hourly', run))
 
 # Use custom algorithms
 
@@ -129,52 +133,56 @@ def get_top_zones():
 
 @app.route('/api/distance-distribution', methods=['GET'])
 def get_distance_distribution():
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT
-            CASE
-                WHEN trip_distance < 1  THEN '0-1 miles'
-                WHEN trip_distance < 3  THEN '1-3 miles'
-                WHEN trip_distance < 5  THEN '3-5 miles'
-                WHEN trip_distance < 10 THEN '5-10 miles'
-                ELSE '10+ miles'
-            END as range,
-            COUNT(*) as count
-        FROM trips
-        GROUP BY range
-        ORDER BY MIN(trip_distance)
-    ''')
-    
-    rows = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    
-    return jsonify(rows)
+    def run():
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT
+                CASE
+                    WHEN trip_distance < 1  THEN '0-1 miles'
+                    WHEN trip_distance < 3  THEN '1-3 miles'
+                    WHEN trip_distance < 5  THEN '3-5 miles'
+                    WHEN trip_distance < 10 THEN '5-10 miles'
+                    ELSE '10+ miles'
+                END as range,
+                COUNT(*) as count
+            FROM trips
+            GROUP BY range
+            ORDER BY MIN(trip_distance)
+        ''')
+        
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        
+        return rows
+    return jsonify(cached_query('distance', run))
 
 # Bar chart
 
 @app.route('/api/boroughs', methods=['GET'])
 def get_boroughs():
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT
-            pickup_borough as borough,
-            COUNT(*) as trip_count,
-            ROUND(SUM(total_amount), 2) as total_revenue,
-            ROUND(AVG(total_amount), 2) as avg_fare
-        FROM trips
-        WHERE pickup_borough IS NOT NULL
-        GROUP BY pickup_borough
-        ORDER BY trip_count DESC
-    ''')
-    
-    rows = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    
-    return jsonify(rows)
+    def run():
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT
+                pickup_borough as borough,
+                COUNT(*) as trip_count,
+                ROUND(SUM(total_amount), 2) as total_revenue,
+                ROUND(AVG(total_amount), 2) as avg_fare
+            FROM trips
+            WHERE pickup_borough IS NOT NULL
+            GROUP BY pickup_borough
+            ORDER BY trip_count DESC
+        ''')
+        
+        rows = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        
+        return rows
+    return jsonify(cached_query('boroughs', run))
 
 @app.route('/api/trips', methods=['GET'])
 def get_trips():
