@@ -209,6 +209,7 @@ def get_trips():
             is_rush_hour
         FROM trips
         WHERE total_amount BETWEEN ? AND ?
+        AND trip_id % 50 = 0
     '''
     params = [min_fare, max_fare]
     
