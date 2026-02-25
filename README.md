@@ -86,7 +86,9 @@ If you'd like to add features or fixes:
 1. Create an issue describing the change.
 2. Open a branch, make your changes, and submit a pull request.
 
+Lastly, we have used Copilot to do README.
 
 Contact
 
 For questions about the code or dataset, contact the members of the group.
+
